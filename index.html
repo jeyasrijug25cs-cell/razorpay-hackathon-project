@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RazorAI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        #chat {
+            min-height: 180px;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            white-space: pre-line;
+        }
+
+        .user {
+            text-align: right;
+            background: #e8f0ff;
+        }
+
+        .bot {
+            background: #f1f1f1;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #bbb;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 15px;
+            background: #111;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        #products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 18px;
+            background: white;
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .rating {
+            margin: 8px 0;
+        }
+
+        .buy-button {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        /* CHECKOUT */
+
+        #checkout {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            background: #fafafa;
+        }
+
+        #checkout h2 {
+            margin-top: 0;
+        }
+
+        .checkout-product {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+
+        .checkout-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .confirm-button {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* SUCCESS */
+
+        #success {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            background: #eefbea;
+            border: 1px solid #b8dfb0;
+        }
+
+        #success h2 {
+            margin-top: 0;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>🤖 RazorAI</h1>
+
+    <p class="subtitle">
+        AI-Powered Conversational Sales & Checkout Agent
+    </p>
+
+
+    <!-- CHAT -->
+
+    <div id="chat">
+
+        <div class="message bot">
+            🤖 Hi! I'm RazorAI.
+            What product are you looking for?
+        </div>
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="input-area">
+
+        <input
+            id="message"
+            type="text"
+            placeholder="Example: I need headphones"
+            onkeydown="handleEnter(event)"
+        >
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
+
+    </div>
+
+
+    <!-- PRODUCTS -->
+
+    <div id="products"></div>
+
+
+    <!-- CHECKOUT -->
+
+    <div id="checkout">
+
+        <h2>🛒 Order Summary</h2>
+
+        <div class="checkout-product" id="checkoutProduct"></div>
+
+        <div class="checkout-price" id="checkoutPrice"></div>
+
+        <button
+            class="confirm-button"
+            onclick="confirmPurchase()"
+        >
+            Confirm Purchase
+        </button>
+
+    </div>
+
+
+    <!-- SUCCESS -->
+
+    <div id="success">
+
+        <h2>✅ Order Confirmed!</h2>
+
+        <p>
+            Your RazorAI demo order has been created successfully.
+        </p>
+
+        <p id="successDetails"></p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+// --------------------------------
+// SEND MESSAGE
+// --------------------------------
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById("message");
+
+    const chat =
+        document.getElementById("chat");
+
+    const productsDiv =
+        document.getElementById("products");
+
+    const message =
+        input.value.trim();
+
+
+    if (!message) {
+        return;
+    }
+
+
+    // Show user message
+
+    const userMessage =
+        document.createElement("div");
+
+    userMessage.className =
+        "message user";
+
+    userMessage.innerText =
+        "You: " + message;
+
+    chat.appendChild(userMessage);
+
+
+    input.value = "";
+
+
+    try {
+
+        const response =
+            await fetch("/chat", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message
+                })
+
+            });
+
+
+        const data =
+            await response.json();
+
+
+        // Show AI response
+
+        const botMessage =
+            document.createElement("div");
+
+        botMessage.className =
+            "message bot";
+
+        botMessage.innerText =
+            "RazorAI: " + data.reply;
+
+        chat.appendChild(botMessage);
+
+
+        // Remove previous products
+
+        productsDiv.innerHTML = "";
+
+
+        // Show products
+
+        data.products.forEach(
+            (product, index) => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className =
+                    "product-card";
+
+
+                card.innerHTML = `
+
+                    <h3>🎧 ${product.name}</h3>
+
+                    <div class="price">
+                        ₹${product.price.toLocaleString()}
+                    </div>
+
+                    <div class="rating">
+                        ⭐ ${product.rating}
+                    </div>
+
+                    <div>
+                        🏪 ${product.store}
+                    </div>
+
+                    <button
+                        class="buy-button"
+                        onclick="buyProduct(
+                            '${product.name}',
+                            ${product.price}
+                        )"
+                    >
+                        🛒 Buy Now
+                    </button>
+
+                `;
+
+
+                productsDiv.appendChild(card);
+
+            }
+        );
+
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        const errorMessage =
+            document.createElement("div");
+
+        errorMessage.className =
+            "message bot";
+
+        errorMessage.innerText =
+            "❌ Something went wrong.";
+
+        chat.appendChild(errorMessage);
+    }
+
+}
+
+
+// --------------------------------
+// BUY PRODUCT
+// --------------------------------
+
+function buyProduct(name, price) {
+
+    const checkout =
+        document.getElementById("checkout");
+
+    const checkoutProduct =
+        document.getElementById("checkoutProduct");
+
+    const checkoutPrice =
+        document.getElementById("checkoutPrice");
+
+
+    checkoutProduct.innerText =
+        "Product: " + name;
+
+
+    checkoutPrice.innerText =
+        "Total: ₹" + price.toLocaleString();
+
+
+    checkout.style.display =
+        "block";
+
+
+    checkout.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+// --------------------------------
+// CONFIRM PURCHASE
+// --------------------------------
+
+function confirmPurchase() {
+
+    const checkout =
+        document.getElementById("checkout");
+
+    const success =
+        document.getElementById("success");
+
+    const successDetails =
+        document.getElementById("successDetails");
+
+
+    successDetails.innerText =
+        "Thank you for choosing RazorAI!";
+
+
+    checkout.style.display =
+        "none";
+
+
+    success.style.display =
+        "block";
+
+
+    success.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+// --------------------------------
+// ENTER KEY
+// --------------------------------
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+
+        sendMessage();
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>
