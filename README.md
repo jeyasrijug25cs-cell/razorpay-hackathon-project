@@ -4,13 +4,13 @@ RazorAI is an AI-powered shopping assistant that helps users discover products, 
 
 ## Features
 
-- 🤖 Conversational shopping assistant
-- 🔎 Product discovery based on user requirements
-- 💰 Budget-based product recommendations
-- ⭐ Highest-rated product selection
-- 🏷️ Cheapest product identification
-- 🛒 Buy Now and checkout flow
-- ✅ Demo order confirmation
+-  Conversational shopping assistant
+-  Product discovery based on user requirements
+-  Budget-based product recommendations
+-  Highest-rated product selection
+-  Cheapest product identification
+-  Buy Now and checkout flow
+-  Demo order confirmation
 
 ## Technology Stack
 
