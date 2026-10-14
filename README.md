@@ -36,9 +36,9 @@ RazorAI is an AI-powered shopping assistant that helps users discover products, 
 
 ```text
 RazorAI/
-├── app.py
-├── templates/
-│   └── index.html
-├── requirements.txt
-├── .gitignore
-└── README.md
+ app.py
+  - templates/
+     - index.html
+  -requirements.txt
+  -.gitignore
+- README.md
